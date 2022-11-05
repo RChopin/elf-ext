@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>popup</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class='choice'><h2>Completed/Planned</h2>
+      <label class="switch">
+        <input type="checkbox" id="completed" />
+        <span class="slider round"></span>
+      </label></div>
+    
+    <div class='choice'><h2>Tags</h2>
+      <label class="switch">
+        <input type="checkbox" id="tags" />
+        <span class="slider round"></span>
+      </label></div>
+    
+    <div class='choice'><h2>MalGraph</h2>
+      <label class="switch">
+        <input type="checkbox" id="malgraph" />
+        <span class="slider round"></span>
+      </label></div>
+      
+    
+  </br>
+  <div style="text-align: center"><h2>Public API or Login (change if tags dont show)</h2>
+    <label class="switch">
+      <input type="checkbox" id="login" />
+      <span class="slider round"></span>
+    </label></div>
+
+    <h4>Discord timestamp</h4>
+    <h4 id='timestamp'></h4>
+    <input id='datepicker' type="datetime-local"/>
+    <h4 id='discord-timestamp'></h4>
+  
+    <h6 style='height:1rem; color:#bbb;'>v0.4.5</h6>
+  </body>
+  <script src="popup.js" type="text/javascript"></script>
+</html>

@@ -1,0 +1,27 @@
+{
+	"manifest_version": 3,
+	"name": "MAL Completed on Shared",
+	"version": "0.4.5",
+
+	"action": {
+		"default_icon": "icon16.png",
+		"default_popup": "popup.html"
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["*://*.myanimelist.net/shared.php*"],
+			"js": ["content.js"]
+		}
+	],
+	"permissions": ["identity", "cookies", "storage"],
+	"host_permissions": ["*://*.myanimelist.net/"],
+
+	"background": {
+		"service_worker": "background-worker.js"
+	},
+	"icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+	"web_accessible_resources": [
+		{ "resources": ["walk.gif"], "matches": ["<all_urls>"] }
+	]
+}
