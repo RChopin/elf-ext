@@ -269,7 +269,7 @@ function drawUnique(uniqueData) {
 			tr.innerHTML = `<tr>
     <td class="borderClass"><a href="/${mediaType}/${anime}">${title}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
 				anime.id
-			}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a>${
+			}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="genres">${
 				maltags
 					? doTagsExist
 						? animelist[0][animeId[0].indexOf(anime)].node.genres
@@ -277,7 +277,7 @@ function drawUnique(uniqueData) {
 								.join(" | ")
 						: ""
 					: ""
-			}</td>
+			}</span></td>
     <td class="borderClass" align="center"><span style="">${score}</span></td>
   </tr>`;
 
@@ -328,7 +328,7 @@ function drawUnique(uniqueData) {
 			tr.innerHTML = `<tr>
     <td class="borderClass"><a href="/${mediaType}/${anime}">${title}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
 				anime.id
-			}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a>${
+			}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="genres">${
 				maltags
 					? doTagsExist
 						? animelist[1][animeId[1].indexOf(anime)].node.genres
@@ -336,7 +336,7 @@ function drawUnique(uniqueData) {
 								.join(" | ")
 						: ""
 					: ""
-			}</td>
+			}</span></td>
     <td class="borderClass" align="center"><span style="">${score}</span></td>
   </tr>`;
 
@@ -387,7 +387,7 @@ function drawCompletedInPlanned(animeData) {
 		tr.innerHTML = `<tr>
     <td class="borderClass"><a href="/${mediaType}/${anime}">${title}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
 			anime.id
-		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a>${
+		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="genres">${
 			maltags
 				? doTagsExist
 					? animelist[1][animeId[1].indexOf(anime)].node.genres
@@ -395,7 +395,7 @@ function drawCompletedInPlanned(animeData) {
 							.join(" | ")
 					: ""
 				: ""
-		}</td>
+		}</span></td>
     <td class="borderClass" align="center"><span style="">${score}</span></td>
   </tr>`;
 		tbody.appendChild(tr);
@@ -449,7 +449,7 @@ function drawShared(sharedData) {
 		tr.innerHTML = `
   <td class="borderClass"><a href="/${mediaType}/${anime.id}">${
 			anime.title + " "
-		}</a>${
+		}</a><span class="genres">${
 			maltags
 				? doTagsExist
 					? animelist[0][animeId[0].indexOf(anime.id)].node.genres
@@ -457,7 +457,7 @@ function drawShared(sharedData) {
 							.join(" | ")
 					: ""
 				: ""
-		}</td>
+		}</span></td>
   <td class="borderClass" align="center"><span style=" color: ${
 		anime.u0 > anime.u1 ? "#FF0000" : "#0000FF"
 	};">${anime.u0}</span></td>
@@ -516,6 +516,8 @@ function drawTables(userData) {
 						for (let row of table) {
 							if (con != 0) {
 								let element = row.getElementsByClassName("borderClass")[0];
+								let span = document.createElement("span");
+								span.className = "genres";
 								try {
 									let gens = getGenre(
 										element.innerHTML.slice(16, 22).split("/")[0],
@@ -523,9 +525,12 @@ function drawTables(userData) {
 									);
 									if (gens) {
 										for (let gen of gens) {
-											element.innerHTML = element.innerHTML + gen.name + " | ";
+											span.innerHTML = span.innerHTML + gen.name + " | ";
+											// element.innerHTML = element.innerHTML + gen.name + " | ";
 										}
-										element.innerHTML = element.innerHTML.slice(0, -2);
+										span.innerHTML = span.innerHTML.slice(0, -2);
+										element.appendChild(span);
+										// element.innerHTML = element.innerHTML.slice(0, -2);
 									}
 								} catch (error) {
 									console.error(error);

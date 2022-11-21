@@ -11,6 +11,9 @@ function setup() {
 	chrome.storage.sync.get(["malexlogin"], function (items) {
 		document.getElementById("login").checked = items["malexlogin"];
 	});
+
+	const manifestData = chrome.runtime.getManifest();
+	document.getElementById("version").innerHTML = "v" + manifestData.version;
 }
 
 setup();
