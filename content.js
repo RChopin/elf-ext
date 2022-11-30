@@ -34,10 +34,10 @@ window.addEventListener("load", () => {
 			.getElementsByTagName("a")[2].text,
 	];
 
-	if (window.location.href.slice(-5) != "manga") {
-		mediaType = "anime";
-	} else {
+	if (window.location.href.includes("manga")) {
 		mediaType = "manga";
+	} else {
+		mediaType = "anime";
 	}
 
 	let flip = document.createElement("DIV");
