@@ -523,9 +523,6 @@ function drawTables(userData) {
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
 									);
-									if (i == 2) {
-										console.log(gens);
-									}
 									if (gens) {
 										for (let gen of gens) {
 											span.innerHTML = span.innerHTML + gen.name + " | ";
