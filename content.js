@@ -27,11 +27,11 @@ window.addEventListener("load", () => {
 		document
 			.getElementById("content")
 			.getElementsByTagName("h2")[0]
-			.getElementsByTagName("a")[1].text,
+			.getElementsByTagName("a")[2].text,
 		document
 			.getElementById("content")
 			.getElementsByTagName("h2")[0]
-			.getElementsByTagName("a")[2].text,
+			.getElementsByTagName("a")[1].text,
 	];
 
 	if (window.location.href.includes("manga")) {
