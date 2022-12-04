@@ -484,9 +484,9 @@ function getGenre(anime, i) {
 		if (i == 2 && malcompletedinplanned == false)
 			return animelist[1][animeId[1].indexOf(Number(anime))].node.genres;
 		if (i == 2 && malcompletedinplanned == true)
-			return animelist[0][animeId[0].indexOf(Number(anime))].node.genres;
+			return animelist[1][animeId[1].indexOf(Number(anime))].node.genres; // it was [0] and [0]
 		if (i == 3 && malcompletedinplanned == true)
-			return animelist[1][animeId[1].indexOf(Number(anime))].node.genres;
+			return animelist[0][animeId[0].indexOf(Number(anime))].node.genres; // it was [1] and [1]
 	} catch (e) {}
 }
 
@@ -523,6 +523,9 @@ function drawTables(userData) {
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
 									);
+									if (i == 2) {
+										console.log(gens);
+									}
 									if (gens) {
 										for (let gen of gens) {
 											span.innerHTML = span.innerHTML + gen.name + " | ";
