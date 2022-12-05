@@ -43,7 +43,7 @@ window.addEventListener("load", () => {
 	let flip = document.createElement("DIV");
 	let aflip = document.createElement("A");
 	aflip.text = "Flip users";
-	aflip.href = `/shared.php?u1=${user[1]}&u2=${user[0]}${
+	aflip.href = `/shared.php?u1=${user[0]}&u2=${user[1]}${
 		mediaType == "manga" ? "&type=manga" : ""
 	}`;
 	flip.appendChild(aflip);
