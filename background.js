@@ -356,7 +356,7 @@ async function getUserData(userNo, paging) {
 	}
 	if (paging) userUrl = paging;
 	else
-		userUrl = `https://api.myanimelist.net/v2/users/${user[userNo]}/${mediaType}list?fields=list_status(status,score,genres)&nsfw=true&limit=1000`;
+		userUrl = `https://api.myanimelist.net/v2/users/${user[userNo]}/${mediaType}list?fields=list_status(status,score,genres,start_date,end_date,num_episodes,num_volumes)&nsfw=true&limit=1000`;
 	console.log(userUrl);
 	await fetch(userUrl, {
 		method: "GET",

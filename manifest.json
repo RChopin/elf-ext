@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "MAL Completed on Shared",
-	"version": "0.4.9",
+	"version": "0.4.12",
 
 	"action": {
 		"default_icon": "icon16.png",

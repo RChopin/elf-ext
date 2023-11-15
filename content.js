@@ -8,6 +8,103 @@ let animeId = [[], []];
 let mediaType;
 let settingsUnset = false;
 
+// Tags/affinities
+const tags = [
+	"All",
+	"Action",
+	"Adult Cast",
+	"Adventure",
+	"Anthropomorphic",
+	"Avant Garde",
+	"Award Winning",
+	"Boys Love",
+	"CGDCT",
+	"Childcare",
+	"Combat Sports",
+	"Comedy",
+	"Crossdressing",
+	"Delinquents",
+	"Detective",
+	"Drama",
+	"Ecchi",
+	"Educational",
+	"Erotica",
+	"Fantasy",
+	"Gag Humor",
+	"Girls Love",
+	"Gore",
+	"Gourmet",
+	"Harem",
+	"Hentai",
+	"High Stakes Game",
+	"Historical",
+	"Horror",
+	"Idols (Female)",
+	"Idols (Male)",
+	"Isekai",
+	"Iyashikei",
+	"Josei",
+	"Kids",
+	"Love Polygon",
+	"Magical Sex Shift",
+	"Mahou Shoujo",
+	"Martial Arts",
+	"Mecha",
+	"Medical",
+	"Memoir",
+	"Military",
+	"Music",
+	"Mystery",
+	"Mythology",
+	"Organized Crime",
+	"Otaku Culture",
+	"Parody",
+	"Performing Arts",
+	"Pets",
+	"Psychological",
+	"Racing",
+	"Reincarnation",
+	"Reverse Harem",
+	"Romance",
+	"Romantic Subtext",
+	"Samurai",
+	"School",
+	"Sci-Fi",
+	"Seinen",
+	"Shoujo",
+	"Shounen",
+	"Showbiz",
+	"Slice of Life",
+	"Space",
+	"Sports",
+	"Strategy Game",
+	"Super Power",
+	"Supernatural",
+	"Survival",
+	"Suspense",
+	"Team Sports",
+	"Time Travel",
+	"Vampire",
+	"Video Game",
+	"Villainess",
+	"Visual Arts",
+	"Workplace",
+];
+let values = {};
+for (const tag of tags) {
+	values[tag] = {};
+	values[tag].x = [];
+	values[tag].y = [];
+	values[tag].diff = [];
+	values[tag].totaldiff = 0;
+	values[tag].totalx = 0;
+	values[tag].totaly = 0;
+	values[tag].meanx = 0;
+	values[tag].meany = 0;
+	values[tag].meandiff = 0;
+	values[tag].affinity = 0;
+}
+
 let maltags;
 let malcompletedinplanned;
 let malplus;
@@ -222,6 +319,26 @@ function postDraw() {
 
 		row3.classList.add("spaceit");
 		content.insertBefore(row3, content.childNodes[1]);
+
+		let row4 = document.createElement("DIV");
+		let statsDiv = document.createElement("DIV");
+		let statsLink1 = document.createElement("A");
+		statsLink1.text = `${user[0]}'s Statisctics`;
+		statsLink1.href = `https://myanimelist.net/profile/${user[0]}/statistics`;
+		statsDiv.appendChild(statsLink1);
+		row4.appendChild(statsDiv);
+
+		let p2 = document.createTextNode(" | ");
+		statsDiv.appendChild(p2);
+
+		let statsLink2 = document.createElement("A");
+		statsLink2.text = `${user[1]}'s Statisctics`;
+		statsLink2.href = `https://myanimelist.net/profile/${user[1]}/statistics`;
+		statsDiv.appendChild(statsLink2);
+		row4.appendChild(statsDiv);
+
+		row4.classList.add("spaceit");
+		content.insertBefore(row4, content.childNodes[1]);
 	}
 }
 
@@ -373,6 +490,18 @@ function drawCompletedInPlanned(animeData) {
 	for (let anime of animeData) {
 		let title = animelist[1][animeId[1].indexOf(anime)].node.title;
 		let score = animelist[1][animeId[1].indexOf(anime)].list_status.score;
+		let year =
+			animelist[1][animeId[1].indexOf(anime)].node.start_date.split("-")[0];
+		let num_episodes = "-";
+		try {
+			if (mediaType == "anime") {
+				num_episodes =
+					animelist[1][animeId[1].indexOf(anime)].node.num_episodes + " eps";
+			} else if (mediaType == "manga") {
+				num_episodes =
+					animelist[1][animeId[1].indexOf(anime)].node.num_volumes + " vols";
+			}
+		} catch (e) {}
 		let doTagsExist;
 		if (
 			typeof animelist[1][animeId[1].indexOf(anime)].node.genres === "undefined"
@@ -387,7 +516,7 @@ function drawCompletedInPlanned(animeData) {
 		tr.innerHTML = `<tr>
     <td class="borderClass"><a href="/${mediaType}/${anime}">${title}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
 			anime.id
-		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="genres">${
+		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="year" style="margin: 0 5px">(${year}, ${num_episodes})</span>  <span class="genres">${
 			maltags
 				? doTagsExist
 					? animelist[1][animeId[1].indexOf(anime)].node.genres
@@ -490,6 +619,64 @@ function getGenre(anime, i) {
 	} catch (e) {}
 }
 
+function getStartDate(anime, i) {
+	try {
+		if (i == 0)
+			return animelist[0][
+				animeId[0].indexOf(Number(anime))
+			].node.start_date.split("-")[0];
+		if (i == 1 && malcompletedinplanned == false)
+			return animelist[0][
+				animeId[0].indexOf(Number(anime))
+			].node.start_date.split("-")[0];
+		if (i == 2 && malcompletedinplanned == false)
+			return animelist[1][
+				animeId[1].indexOf(Number(anime))
+			].node.start_date.split("-")[0];
+		if (i == 2 && malcompletedinplanned == true)
+			return animelist[1][
+				animeId[1].indexOf(Number(anime))
+			].node.start_date.split("-")[0]; // it was [0] and [0]
+		if (i == 3 && malcompletedinplanned == true)
+			return animelist[0][
+				animeId[0].indexOf(Number(anime))
+			].node.start_date.split("-")[0]; // it was [1] and [1]
+	} catch (e) {}
+}
+
+function getNumEpisodes(anime, i) {
+	try {
+		if (mediaType == "manga") {
+			if (i == 0)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node.num_volumes;
+			if (i == 1 && malcompletedinplanned == false)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node.num_volumes;
+			if (i == 2 && malcompletedinplanned == false)
+				return animelist[1][animeId[1].indexOf(Number(anime))].node.num_volumes;
+			if (i == 2 && malcompletedinplanned == true)
+				return animelist[1][animeId[1].indexOf(Number(anime))].node.num_volumes; // it was [0] and [0]
+			if (i == 3 && malcompletedinplanned == true)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node.num_volumes; // it was [1] and [1]
+		} else if (mediaType == "anime") {
+			if (i == 0)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node
+					.num_episodes;
+			if (i == 1 && malcompletedinplanned == false)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node
+					.num_episodes;
+			if (i == 2 && malcompletedinplanned == false)
+				return animelist[1][animeId[1].indexOf(Number(anime))].node
+					.num_episodes;
+			if (i == 2 && malcompletedinplanned == true)
+				return animelist[1][animeId[1].indexOf(Number(anime))].node
+					.num_episodes; // it was [0] and [0]
+			if (i == 3 && malcompletedinplanned == true)
+				return animelist[0][animeId[0].indexOf(Number(anime))].node
+					.num_episodes; // it was [1] and [1]
+		}
+	} catch (e) {}
+}
+
 function drawTables(userData) {
 	if (malcompletedinplanned) {
 		message = {
@@ -516,9 +703,45 @@ function drawTables(userData) {
 						for (let row of table) {
 							if (con != 0) {
 								let element = row.getElementsByClassName("borderClass")[0];
+								let year = document.createElement("span");
+								year.className = "year";
 								let span = document.createElement("span");
 								span.className = "genres";
 								try {
+									// Add start date after the anime name
+									let start_date = getStartDate(
+										element.innerHTML.slice(16, 22).split("/")[0],
+										i
+									);
+									let num_episodes = getNumEpisodes(
+										element.innerHTML.slice(16, 22).split("/")[0],
+										i
+									);
+									if (start_date && num_episodes) {
+										if (mediaType == "manga")
+											year.innerHTML =
+												"(" + start_date + ", " + num_episodes + " vols)";
+										if (mediaType == "anime")
+											year.innerHTML =
+												"(" + start_date + ", " + num_episodes + " eps)";
+
+										year.style.margin = "0 5px";
+										element.appendChild(year);
+									} else if (start_date) {
+										year.innerHTML = "(" + start_date + ")";
+
+										year.style.margin = "0 5px";
+										element.appendChild(year);
+									} else if (num_episodes) {
+										if (mediaType == "manga")
+											year.innerHTML = "(" + num_episodes + " vols)";
+										if (mediaType == "anime")
+											year.innerHTML = "(" + num_episodes + " eps)";
+
+										year.style.margin = "0 5px";
+										element.appendChild(year);
+									}
+									// Add the genres after the anime name
 									let gens = getGenre(
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
@@ -543,10 +766,126 @@ function drawTables(userData) {
 				}
 			}
 			console.timeEnd("All");
+
+			//affinities start \/
+			const rows =
+				document.getElementsByTagName("table")[0].children[0].children;
+
+			for (let i = 1; i < rows.length - 2; ++i) {
+				let text = rows[i].innerText;
+				let newtext = text.split(/\s*(add|edit)\s*/);
+				let arr = newtext[2].split("\t");
+
+				if (arr[3] === "\u00a0") continue;
+				let genres = [];
+				try {
+					genres = rows[i].querySelector(".genres").innerHTML.split(" | ");
+				} catch (e) {}
+				genres.push("All");
+				const x = Number.parseInt(arr[1]);
+				const y = Number.parseInt(arr[2]);
+				const diff = Number.parseInt(arr[3]);
+
+				try {
+					for (const genre of genres) {
+						let tag = values[genre.trim()];
+						tag.x.push(x);
+						tag.y.push(y);
+						tag.diff.push(diff);
+						tag.totalx += x;
+						tag.totaly += y;
+						tag.totaldiff += diff;
+					}
+				} catch (e) {
+					console.log(e);
+				}
+			}
+			let div = document.createElement("div");
+			for (let value in values) {
+				let tag = values[value];
+				let len = tag.x.length;
+				tag.meanx = tag.totalx / len;
+				tag.meany = tag.totaly / len;
+				tag.meandiff = tag.totaldiff / len;
+				let meansum = 0;
+				let varx = 0;
+				let vary = 0;
+				for (let i = 0; i < len; ++i) {
+					meansum += (tag.x[i] - tag.meanx) * (tag.y[i] - tag.meany);
+					varx += (tag.x[i] - tag.meanx) * (tag.x[i] - tag.meanx);
+					vary += (tag.y[i] - tag.meany) * (tag.y[i] - tag.meany);
+				}
+				tag.affinity = meansum / Math.sqrt(varx * vary);
+			}
+
+			for (let value in values) {
+				let tag = values[value];
+				let len = tag.x.length;
+				if (value == "All" || len < 10) continue;
+				let para = document.createElement("p");
+				let text = document.createTextNode(
+					`${value} - Entries: ${tag.x.length} | Affinity: ${
+						isNaN(tag.affinity) ? "Unknown" : (tag.affinity * 100).toFixed(1)
+					}% | Mean Diff: ${tag.meandiff.toFixed(2)}`
+				);
+
+				para.appendChild(text);
+				div.append(para);
+			}
+
+			// main div
+			var expandableDiv = document.createElement("div");
+			expandableDiv.id = "expandableDiv";
+
+			// toggle button
+			var toggleButton = document.createElement("button");
+			toggleButton.id = "toggleButton";
+			toggleButton.innerHTML = "Show tag affinity &#9654;";
+			toggleButton.style.cursor = "pointer";
+			toggleButton.style.border = "none";
+
+			var contentDiv = document.createElement("div");
+			contentDiv.id = "content";
+			contentDiv.prepend(div);
+
+			expandableDiv.appendChild(toggleButton);
+			expandableDiv.appendChild(contentDiv);
+
+			contentDiv.style.display = "none";
+
+			document
+				.getElementsByClassName("spaceit")[0]
+				.parentElement.prepend(expandableDiv);
+
+			toggleButton.addEventListener("click", function () {
+				if (contentDiv.style.display === "none") {
+					contentDiv.style.display = "block";
+				} else {
+					contentDiv.style.display = "none";
+				}
+			});
+
+			let para = document.createElement("p");
+			let text = document.createTextNode(
+				`All - Entries: ${values["All"].x.length} | Affinity: ${
+					isNaN(values["All"].affinity)
+						? "Unknown"
+						: (values["All"].affinity * 100).toFixed(1)
+				}% | Mean Diff: ${values["All"].meandiff.toFixed(2)}`
+			);
+			para.style.fontSize = "12px";
+			para.style.fontWeight = "bold";
+			para.style.padding = "10px 0";
+			if (values["All"].affinity <= 0) para.style.color = "firebrick";
+			else if (values["All"].affinity >= 0.5) para.style.color = "green";
+			para.appendChild(text);
+			document.getElementsByClassName("spaceit")[0].parentElement.prepend(para);
+
+			//affinities end /\
 		});
 	} else postDraw();
 
-	// this thing below is something i did last year and don't remember what it was supposed to be
+	// this thing below is something i did last year and don't remember what it was supposed to be (2 yrs now, still no idea)
 	// let message = {
 	//   command: "getShared",
 	//   anime: userData.anime,
