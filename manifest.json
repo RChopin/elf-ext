@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "MAL Completed on Shared",
-	"version": "0.4.12",
+	"version": "0.4.21",
 
 	"action": {
 		"default_icon": "icon16.png",
@@ -22,6 +22,6 @@
 	},
 	"icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
 	"web_accessible_resources": [
-		{ "resources": ["walk.gif"], "matches": ["<all_urls>"] }
+		{ "resources": ["walk.gif", "firstpopup.html"], "matches": ["<all_urls>"] }
 	]
 }

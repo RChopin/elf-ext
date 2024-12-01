@@ -92,6 +92,24 @@ async function getToken(code, sendResponse) {
 //   console.log(installed);
 // });
 
+chrome.runtime.onInstalled.addListener((details) => {
+	if (details.reason === "install") {
+		// The extension has just been installed
+
+		const width = 350; // Adjust the width as needed
+		const height = 700; // Adjust the height as needed
+
+		chrome.windows.create({
+			type: "popup",
+			url: "firstpopup.html",
+			width: width,
+			height: height,
+			left: 500,
+			top: 100,
+		});
+	}
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	user = [];
 	animelist = [[], []];
@@ -219,6 +237,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				animeId = message.animeId;
 				animelist = message.animelist;
 				animenodelist = message.animenodelist;
+				completedorder = message.completedorder;
 
 				getCompletedInPlanned().then(() => {
 					var response = {
@@ -239,7 +258,21 @@ async function getCompletedInPlanned() {
 	// if so push to temp
 
 	console.time("getCompletedInPlanned");
-
+	let user1list; //user 1
+	let user1Ids;
+	let user0list; //user 2 i guess
+	let user0Ids;
+	if (completedorder == false) {
+		user1list = animelist[1]; //user 1
+		user1Ids = animeId[1];
+		user0list = animelist[0]; //user 2 i guess
+		user0Ids = animeId[0];
+	} else if (completedorder == true) {
+		user1list = animelist[0]; //user 1
+		user1Ids = animeId[0];
+		user0list = animelist[1]; //user 2 i guess
+		user0Ids = animeId[1];
+	}
 	let templist = [];
 
 	if (mediaType == "anime") {
@@ -248,11 +281,11 @@ async function getCompletedInPlanned() {
 		plan_to_do_what = "plan_to_read";
 	}
 
-	for (let anime of animelist[1]) {
+	for (let anime of user1list) {
 		if (anime.list_status.status == "completed") {
-			if (animeId[0].includes(anime.node.id)) {
+			if (user0Ids.includes(anime.node.id)) {
 				if (
-					animelist[0][animeId[0].indexOf(anime.node.id)].list_status.status ==
+					user0list[user0Ids.indexOf(anime.node.id)].list_status.status ==
 					plan_to_do_what
 				) {
 					templist.push(anime.node.id);
@@ -356,7 +389,7 @@ async function getUserData(userNo, paging) {
 	}
 	if (paging) userUrl = paging;
 	else
-		userUrl = `https://api.myanimelist.net/v2/users/${user[userNo]}/${mediaType}list?fields=list_status(status,score,genres,start_date,end_date,num_episodes,num_volumes)&nsfw=true&limit=1000`;
+		userUrl = `https://api.myanimelist.net/v2/users/${user[userNo]}/${mediaType}list?fields=list_status(status,score,genres,media_type,rating,start_date,end_date,num_episodes,num_volumes)&nsfw=true&limit=1000`;
 	console.log(userUrl);
 	await fetch(userUrl, {
 		method: "GET",

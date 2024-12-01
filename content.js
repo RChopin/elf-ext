@@ -7,6 +7,9 @@ let animenodelist = [[], []];
 let animeId = [[], []];
 let mediaType;
 let settingsUnset = false;
+let hiddenCounter = 0;
+const bannedGenres = [];
+// let highlightedGenres = [];
 
 // Tags/affinities
 const tags = [
@@ -89,10 +92,13 @@ const tags = [
 	"Villainess",
 	"Visual Arts",
 	"Workplace",
+	"Urban Fantasy",
+	"Love Status Quo",
 ];
 let values = {};
 for (const tag of tags) {
 	values[tag] = {};
+	values[tag].total = 0;
 	values[tag].x = [];
 	values[tag].y = [];
 	values[tag].diff = [];
@@ -108,6 +114,15 @@ for (const tag of tags) {
 let maltags;
 let malcompletedinplanned;
 let malplus;
+let mallogin;
+let droptag;
+let sortcip;
+let highlighter;
+let highlighted;
+let banMediaTypes;
+let affinitysetting;
+let cutoffsetting;
+let completedorder;
 
 let content = document.getElementById("content");
 let table = document.createElement("TABLE");
@@ -137,6 +152,8 @@ window.addEventListener("load", () => {
 		mediaType = "anime";
 	}
 
+	tempAffinity();
+
 	let flip = document.createElement("DIV");
 	let aflip = document.createElement("A");
 	aflip.text = "Flip users";
@@ -149,12 +166,43 @@ window.addEventListener("load", () => {
 	content.insertBefore(flip, content.childNodes[1]);
 
 	chrome.storage.sync.get(
-		["tags", "completed", "malgraph", "malexlogin"],
+		[
+			"tags",
+			"completed",
+			"completedorder",
+			"malgraph",
+			"malexlogin",
+			"droptag",
+			"sortcip",
+			"highlighter",
+			"highlighted",
+			"music",
+			"pv",
+			"cm",
+			"affinity",
+			"cutoff",
+		],
 		function (settingsdata) {
 			maltags = settingsdata["tags"];
 			malcompletedinplanned = settingsdata["completed"];
+			completedorder = settingsdata["completedorder"];
 			malplus = settingsdata["malgraph"];
 			mallogin = settingsdata["malexlogin"];
+			droptag = settingsdata["droptag"];
+			sortcip = settingsdata["sortcip"];
+			highlighter = settingsdata["highlighter"];
+			highlighted = settingsdata["highlighted"];
+			banMediaTypes = [
+				settingsdata["music"] ? "music" : "",
+				settingsdata["pv"] ? "pv" : "",
+				settingsdata["cm"] ? "cm" : "",
+			];
+			affinitysetting = settingsdata["affinity"];
+			cutoffsetting = settingsdata["cutoff"];
+
+			if (typeof cutoffsetting === "undefined" || isNaN(cutoffsetting)) {
+				cutoffsetting = 5;
+			}
 
 			let Run = true;
 
@@ -162,9 +210,19 @@ window.addEventListener("load", () => {
 
 			if (malcompletedinplanned === undefined) malcompletedinplanned = false;
 
+			if (completedorder === undefined) completedorder = false;
+
 			if (malplus === undefined) malplus = false;
 
 			if (mallogin === undefined) mallogin = false;
+
+			if (droptag === undefined) droptag = false;
+
+			if (sortcip === undefined) sortcip = false;
+
+			if (highlighter === undefined) highlighter = false;
+
+			if (highlighted === undefined) highlighted = [];
 
 			if (
 				maltags == false &&
@@ -323,7 +381,7 @@ function postDraw() {
 		let row4 = document.createElement("DIV");
 		let statsDiv = document.createElement("DIV");
 		let statsLink1 = document.createElement("A");
-		statsLink1.text = `${user[0]}'s Statisctics`;
+		statsLink1.text = `${user[0]}'s Statistics`;
 		statsLink1.href = `https://myanimelist.net/profile/${user[0]}/statistics`;
 		statsDiv.appendChild(statsLink1);
 		row4.appendChild(statsDiv);
@@ -332,7 +390,7 @@ function postDraw() {
 		statsDiv.appendChild(p2);
 
 		let statsLink2 = document.createElement("A");
-		statsLink2.text = `${user[1]}'s Statisctics`;
+		statsLink2.text = `${user[1]}'s Statistics`;
 		statsLink2.href = `https://myanimelist.net/profile/${user[1]}/statistics`;
 		statsDiv.appendChild(statsLink2);
 		row4.appendChild(statsDiv);
@@ -468,7 +526,10 @@ function drawUnique(uniqueData) {
 function drawCompletedInPlanned(animeData) {
 	let a = 9;
 	let header = document.createElement("h2");
-	header.innerHTML = `Completed by <a href="/profile/${user[1]}">${user[1]}</a>, planned by <a href="/profile/${user[0]}">${user[0]}</a>`;
+	if (completedorder == false)
+		header.innerHTML = `Completed by <a href="/profile/${user[1]}">${user[1]}</a>, planned by <a href="/profile/${user[0]}">${user[0]}</a>`;
+	else if (completedorder == true)
+		header.innerHTML = `Completed by <a href="/profile/${user[0]}">${user[0]}</a>, planned by <a href="/profile/${user[1]}">${user[1]}</a>`;
 	content.insertBefore(document.createElement("br"), content.childNodes[a]);
 	content.insertBefore(document.createElement("a"), content.childNodes[a + 1]);
 	content.insertBefore(header, content.childNodes[a + 2]);
@@ -480,16 +541,40 @@ function drawCompletedInPlanned(animeData) {
 	table.border = 0;
 
 	let header2 = document.createElement("tr");
-	header2.innerHTML = `
-  <td class="borderClass"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=1"><strong>Title</strong></a></td>
-  <td class="borderClass" width="140" align="center"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=2"><strong>${user[1]}'s Score</strong></a></td>
-`;
+	if (completedorder == false)
+		header2.innerHTML = `
+		<td class="borderClass"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=1"><strong>Title</strong></a></td>
+		<td class="borderClass" width="140" align="center"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=2"><strong>${user[1]}'s Score</strong></a></td>
+		`;
+	else if (completedorder == true)
+		header2.innerHTML = `
+		<td class="borderClass"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=1"><strong>Title</strong></a></td>
+		<td class="borderClass" width="140" align="center"><a href="?u1=${user[1]}&amp;u2=${user[0]}&amp;type=${mediaType}&amp;o=2"><strong>${user[0]}'s Score</strong></a></td>
+		`;
 	table.appendChild(header2);
 
 	let tbody = document.createElement("TBODY");
+	// Step 1: Collect the anime data into an array
+	let animeList = [];
 	for (let anime of animeData) {
+		let tempGenres = [];
+		for (let genre of animelist[1][animeId[1].indexOf(anime)].node.genres)
+			tempGenres.push(genre.name);
+		if (tempGenres.some((genre) => bannedGenres.includes(genre))) {
+			hiddenCounter += 1;
+			continue;
+		}
+		let theanimelist;
+		let theanimeId;
+		if (completedorder == false) {
+			theanimelist = animelist[1];
+			theanimeId = animeId[1];
+		} else if (completedorder == true) {
+			theanimelist = animelist[0];
+			theanimeId = animeId[0];
+		}
 		let title = animelist[1][animeId[1].indexOf(anime)].node.title;
-		let score = animelist[1][animeId[1].indexOf(anime)].list_status.score;
+		let score = theanimelist[theanimeId.indexOf(anime)].list_status.score;
 		let year =
 			animelist[1][animeId[1].indexOf(anime)].node.start_date.split("-")[0];
 		let num_episodes = "-";
@@ -502,6 +587,10 @@ function drawCompletedInPlanned(animeData) {
 					animelist[1][animeId[1].indexOf(anime)].node.num_volumes + " vols";
 			}
 		} catch (e) {}
+		let media_type = animelist[1][
+			animeId[1].indexOf(anime)
+		].node.media_type.replace(/_/g, " ");
+
 		let doTagsExist;
 		if (
 			typeof animelist[1][animeId[1].indexOf(anime)].node.genres === "undefined"
@@ -512,23 +601,45 @@ function drawCompletedInPlanned(animeData) {
 		}
 		if (score == 0) score = "-";
 
+		animeList.push({
+			anime,
+			title,
+			score,
+			year,
+			num_episodes,
+			media_type,
+			doTagsExist,
+			genres: animelist[1][animeId[1].indexOf(anime)].node.genres,
+		});
+	}
+	// Step 2: Sort the array by score
+	animeList.sort((a, b) => b.score - a.score);
+
+	for (let animeData of animeList) {
 		let tr = document.createElement("TR");
 		tr.innerHTML = `<tr>
-    <td class="borderClass"><a href="/${mediaType}/${anime}">${title}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
-			anime.id
-		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="year" style="margin: 0 5px">(${year}, ${num_episodes})</span>  <span class="genres">${
+    <td class="borderClass"><a href="/${mediaType}/${animeData.anime}">${
+			animeData.title
+		}</a> <a href="https://myanimelist.net/ownlist/${mediaType}/add?selected_series_id=${
+			animeData.anime.id
+		}&amp;hideLayout=1" title="Quick add ${mediaType} to my list" class="Lightbox_AddEdit button_add">add</a><span class="year" style="margin: 0 5px">(${
+			animeData.year
+		}, ${animeData.num_episodes}, ${
+			animeData.media_type
+		})</span>  <span class="genres">${
 			maltags
-				? doTagsExist
-					? animelist[1][animeId[1].indexOf(anime)].node.genres
-							.map((gn) => gn.name)
-							.join(" | ")
+				? animeData.doTagsExist
+					? animeData.genres.map((gn) => gn.name).join(" | ")
 					: ""
 				: ""
 		}</span></td>
-    <td class="borderClass" align="center"><span style="">${score}</span></td>
+    <td class="borderClass" align="center"><span style="">${
+			animeData.score
+		}</span></td>
   </tr>`;
 		tbody.appendChild(tr);
 	}
+
 	table.appendChild(tbody);
 	table.appendChild(goToTop);
 	content.insertBefore(table, content.childNodes[a + 3]);
@@ -619,6 +730,21 @@ function getGenre(anime, i) {
 	} catch (e) {}
 }
 
+function getStatus(anime, i) {
+	try {
+		if (i == 0)
+			return animelist[0][animeId[0].indexOf(Number(anime))].list_status.status;
+		if (i == 1 && malcompletedinplanned == false)
+			return animelist[0][animeId[0].indexOf(Number(anime))].list_status.status;
+		if (i == 2 && malcompletedinplanned == false)
+			return animelist[1][animeId[1].indexOf(Number(anime))].list_status.status;
+		if (i == 2 && malcompletedinplanned == true)
+			return animelist[1][animeId[1].indexOf(Number(anime))].list_status.status; // it was [0] and [0]
+		if (i == 3 && malcompletedinplanned == true)
+			return animelist[0][animeId[0].indexOf(Number(anime))].list_status.status; // it was [1] and [1]
+	} catch (e) {}
+}
+
 function getStartDate(anime, i) {
 	try {
 		if (i == 0)
@@ -677,6 +803,21 @@ function getNumEpisodes(anime, i) {
 	} catch (e) {}
 }
 
+function getMediaType(anime, i) {
+	try {
+		if (i == 0)
+			return animelist[0][animeId[0].indexOf(Number(anime))].node.media_type;
+		if (i == 1 && malcompletedinplanned == false)
+			return animelist[0][animeId[0].indexOf(Number(anime))].node.media_type;
+		if (i == 2 && malcompletedinplanned == false)
+			return animelist[1][animeId[1].indexOf(Number(anime))].node.media_type;
+		if (i == 2 && malcompletedinplanned == true)
+			return animelist[1][animeId[1].indexOf(Number(anime))].node.media_type; // it was [0] and [0]
+		if (i == 3 && malcompletedinplanned == true)
+			return animelist[0][animeId[0].indexOf(Number(anime))].node.media_type; // it was [1] and [1]
+	} catch (e) {}
+}
+
 function drawTables(userData) {
 	if (malcompletedinplanned) {
 		message = {
@@ -685,10 +826,11 @@ function drawTables(userData) {
 			animeId: userData.animeId,
 			animelist: userData.animelist,
 			animenodelist: userData.animenodelist,
+			completedorder: completedorder,
 		};
 
 		sendMessage(message, (cipData) => {
-			drawCompletedInPlanned(cipData.cipanime); // TODO // todo what?
+			drawCompletedInPlanned(cipData.cipanime); // TODO // todo what? // still no idea
 			if (maltags) {
 				let tables = content.getElementsByTagName("table");
 				for (let i in tables) {
@@ -699,53 +841,83 @@ function drawTables(userData) {
 						continue; //
 					}
 
+					// Add genres and start date for shared and unique tables
 					if (table) {
 						for (let row of table) {
 							if (con != 0) {
 								let element = row.getElementsByClassName("borderClass")[0];
+
+								// Show the statrus of the anime on list (if dropped or on hold)
+								if (droptag) {
+									let statusSpan = document.createElement("span");
+									statusSpan.className = "status";
+									element.appendChild(statusSpan);
+
+									if (row.childNodes.length <= 5) {
+										let status = getStatus(
+											element.innerHTML.slice(16, 22).split("/")[0],
+											i
+										);
+										if (status == "dropped") {
+											statusSpan.style.display = "inline-block";
+											statusSpan.style.width = "10px"; // Adjust size of the dot
+											statusSpan.style.height = "10px";
+											statusSpan.style.backgroundColor = "red";
+											statusSpan.style.borderRadius = "50%"; // Makes it circular
+											statusSpan.style.marginLeft = "5px"; // Optional, adds spacing
+										}
+										if (status == "on_hold") {
+											statusSpan.style.display = "inline-block";
+											statusSpan.style.width = "10px"; // Adjust size of the dot
+											statusSpan.style.height = "10px";
+											statusSpan.style.backgroundColor = "orange";
+											statusSpan.style.borderRadius = "50%"; // Makes it circular
+											statusSpan.style.marginLeft = "5px"; // Optional, adds spacing (r) Chatptg
+										}
+									}
+								}
+
 								let year = document.createElement("span");
 								year.className = "year";
 								let span = document.createElement("span");
 								span.className = "genres";
 								try {
+									let attributes = ["("];
 									// Add start date after the anime name
 									let start_date = getStartDate(
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
 									);
+									if (start_date) attributes.push(start_date);
+
 									let num_episodes = getNumEpisodes(
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
 									);
-									if (start_date && num_episodes) {
-										if (mediaType == "manga")
-											year.innerHTML =
-												"(" + start_date + ", " + num_episodes + " vols)";
-										if (mediaType == "anime")
-											year.innerHTML =
-												"(" + start_date + ", " + num_episodes + " eps)";
+									if (mediaType == "manga" && num_episodes)
+										attributes.push(", ", num_episodes, " vols");
+									else if (mediaType == "anime" && num_episodes)
+										attributes.push(", ", num_episodes, " eps");
 
-										year.style.margin = "0 5px";
-										element.appendChild(year);
-									} else if (start_date) {
-										year.innerHTML = "(" + start_date + ")";
+									let media_type = getMediaType(
+										element.innerHTML.slice(16, 22).split("/")[0],
+										i
+									);
+									if (media_type)
+										attributes.push(", ", media_type.replace(/_/g, " "));
 
-										year.style.margin = "0 5px";
-										element.appendChild(year);
-									} else if (num_episodes) {
-										if (mediaType == "manga")
-											year.innerHTML = "(" + num_episodes + " vols)";
-										if (mediaType == "anime")
-											year.innerHTML = "(" + num_episodes + " eps)";
+									attributes.push(")");
 
-										year.style.margin = "0 5px";
-										element.appendChild(year);
-									}
+									year.innerHTML = attributes.join("");
+									year.style.margin = "0 5px";
+									element.appendChild(year);
+
 									// Add the genres after the anime name
 									let gens = getGenre(
 										element.innerHTML.slice(16, 22).split("/")[0],
 										i
 									);
+
 									if (gens) {
 										for (let gen of gens) {
 											span.innerHTML = span.innerHTML + gen.name + " | ";
@@ -773,10 +945,13 @@ function drawTables(userData) {
 
 			for (let i = 1; i < rows.length - 2; ++i) {
 				let text = rows[i].innerText;
+				if (text.startsWith("\n\t\t\t")) continue;
 				let newtext = text.split(/\s*(add|edit)\s*/);
-				let arr = newtext[2].split("\t");
+				let brandnewtext = text.split(
+					/^(.+ (add|edit))(\((\d+)?,? ?(\d+ \w+)?\))?(.+)/
+				);
+				let arr = brandnewtext[6].split("\t");
 
-				if (arr[3] === "\u00a0") continue;
 				let genres = [];
 				try {
 					genres = rows[i].querySelector(".genres").innerHTML.split(" | ");
@@ -789,6 +964,8 @@ function drawTables(userData) {
 				try {
 					for (const genre of genres) {
 						let tag = values[genre.trim()];
+						tag.total += 1;
+						if (arr[3] === "\u00a0") continue;
 						tag.x.push(x);
 						tag.y.push(y);
 						tag.diff.push(diff);
@@ -821,10 +998,11 @@ function drawTables(userData) {
 			for (let value in values) {
 				let tag = values[value];
 				let len = tag.x.length;
-				if (value == "All" || len < 10) continue;
+				if (value == "All" || tag.total < Number.parseInt(cutoffsetting))
+					continue;
 				let para = document.createElement("p");
 				let text = document.createTextNode(
-					`${value} - Entries: ${tag.x.length} | Affinity: ${
+					`${value} - Entries: ${tag.total} (${tag.x.length}) | Affinity: ${
 						isNaN(tag.affinity) ? "Unknown" : (tag.affinity * 100).toFixed(1)
 					}% | Mean Diff: ${tag.meandiff.toFixed(2)}`
 				);
@@ -832,42 +1010,58 @@ function drawTables(userData) {
 				para.appendChild(text);
 				div.append(para);
 			}
+			if (affinitysetting) {
+				let contentDiv = document.createElement("div");
+				contentDiv.id = "content";
+				contentDiv.prepend(div);
 
-			// main div
-			var expandableDiv = document.createElement("div");
-			expandableDiv.id = "expandableDiv";
+				document
+					.getElementsByClassName("spaceit")[0]
+					.parentElement.prepend(contentDiv);
+			} else {
+				// main div
+				let expandableDiv = document.createElement("div");
+				expandableDiv.id = "expandableDiv";
 
-			// toggle button
-			var toggleButton = document.createElement("button");
-			toggleButton.id = "toggleButton";
-			toggleButton.innerHTML = "Show tag affinity &#9654;";
-			toggleButton.style.cursor = "pointer";
-			toggleButton.style.border = "none";
+				// toggle button
+				let toggleButton = document.createElement("button");
+				toggleButton.id = "toggleButton";
+				toggleButton.innerHTML = "Show tag affinity &#9654;";
+				toggleButton.style.cursor = "pointer";
+				toggleButton.style.border = "none";
 
-			var contentDiv = document.createElement("div");
-			contentDiv.id = "content";
-			contentDiv.prepend(div);
+				let contentDiv = document.createElement("div");
+				contentDiv.id = "content";
+				contentDiv.prepend(div);
 
-			expandableDiv.appendChild(toggleButton);
-			expandableDiv.appendChild(contentDiv);
+				expandableDiv.appendChild(toggleButton);
+				expandableDiv.appendChild(contentDiv);
 
-			contentDiv.style.display = "none";
+				contentDiv.style.display = "none";
 
-			document
-				.getElementsByClassName("spaceit")[0]
-				.parentElement.prepend(expandableDiv);
+				document
+					.getElementsByClassName("spaceit")[0]
+					.parentElement.prepend(expandableDiv);
 
-			toggleButton.addEventListener("click", function () {
-				if (contentDiv.style.display === "none") {
-					contentDiv.style.display = "block";
-				} else {
-					contentDiv.style.display = "none";
-				}
-			});
+				toggleButton.addEventListener("click", function () {
+					if (contentDiv.style.display === "none") {
+						contentDiv.style.display = "block";
+					} else {
+						contentDiv.style.display = "none";
+					}
+				});
+			}
+
+			let tempAffinityToRemove = document.getElementById("tempAffinity");
+			tempAffinityToRemove
+				? tempAffinityToRemove.remove()
+				: console.log("Element not found");
 
 			let para = document.createElement("p");
 			let text = document.createTextNode(
-				`All - Entries: ${values["All"].x.length} | Affinity: ${
+				`All - Entries: ${values["All"].total} (${
+					values["All"].x.length
+				}) | Affinity: ${
 					isNaN(values["All"].affinity)
 						? "Unknown"
 						: (values["All"].affinity * 100).toFixed(1)
@@ -877,15 +1071,18 @@ function drawTables(userData) {
 			para.style.fontWeight = "bold";
 			para.style.padding = "10px 0";
 			if (values["All"].affinity <= 0) para.style.color = "firebrick";
-			else if (values["All"].affinity >= 0.5) para.style.color = "green";
+			else if (values["All"].affinity >= 0.499) para.style.color = "green";
 			para.appendChild(text);
 			document.getElementsByClassName("spaceit")[0].parentElement.prepend(para);
 
 			//affinities end /\
+
+			// Ban genres function after the tables are drawn and affinities are calculated
+			banGenres();
 		});
 	} else postDraw();
 
-	// this thing below is something i did last year and don't remember what it was supposed to be (2 yrs now, still no idea)
+	// this thing below is something i did last year and don't remember what it was supposed to be (2 yrs now, still no idea) (i think its 3 now?)
 	// let message = {
 	//   command: "getShared",
 	//   anime: userData.anime,
@@ -927,6 +1124,217 @@ function drawTables(userData) {
 	// });
 }
 
+function banGenres() {
+	console.time("Ban Media Types");
+	// Ban certain media types
+	const tables = content.querySelectorAll("table");
+	for (let table of tables) {
+		for (let row of Array.from(table.rows).slice(1)) {
+			if (row.cells[0].childNodes.length === 6) {
+				let mediaType;
+				try {
+					mediaType = row.cells[0].childNodes[4].innerText
+						.split(", ")
+						.pop()
+						.split(")")[0];
+				} catch (error) {
+					// console.error("Error extracting mediaType:", error);
+					mediaType = null; // or any default value you prefer
+				}
+				if (banMediaTypes.includes(mediaType)) {
+					row.style.display = "none";
+					hiddenCounter += 1;
+				}
+			} else if (row.cells[0].childNodes.length === 5) {
+				let mediaType;
+				try {
+					mediaType = row.cells[0].childNodes[4].innerText
+						.split(", ")
+						.pop()
+						.split(")")[0];
+				} catch (error) {
+					// console.error("Error extracting mediaType:", error);
+					mediaType = null; // or any default value you prefer
+				}
+				if (banMediaTypes.includes(mediaType)) {
+					row.style.display = "none";
+					hiddenCounter += 1;
+				}
+			}
+		}
+	}
+	console.timeEnd("Ban Media Types");
+
+	console.time("Ban Genres");
+	// Ban some genres - integrate this into one above if banned genres become a thing
+	if (bannedGenres && bannedGenres.length > 0) {
+		const tables = content.querySelectorAll("table");
+		for (let table of tables) {
+			for (let row of Array.from(table.rows).slice(1)) {
+				if (row.cells[0].childNodes.length === 6) {
+					let genreNames = row.cells[0].childNodes[5].innerText.split(" | ");
+					if (genreNames.some((genre) => bannedGenres.includes(genre))) {
+						row.style.display = "none";
+						hiddenCounter += 1;
+					}
+				} else if (row.cells[0].childNodes.length === 5) {
+					let genreNames = row.cells[0].childNodes[4].innerText.split(" | ");
+					if (genreNames.some((genre) => bannedGenres.includes(genre))) {
+						row.style.display = "none";
+						hiddenCounter += 1;
+					}
+				}
+			}
+		}
+	}
+	console.timeEnd("Ban Genres");
+	console.log("Hidden: " + hiddenCounter);
+
+	highlightGenres();
+}
+
+function highlightGenres() {
+	console.time("Highlight Genres");
+	if (highlighter) {
+		if (highlighted && highlighted.length > 0) {
+			const colors = [
+				"DeepSkyBlue",
+				"IndianRed",
+				"Chartreuse",
+				"MediumOrchid",
+				"orange",
+				"HotPink",
+			];
+			const tables = content.querySelectorAll("table");
+			for (let table of tables) {
+				for (let row of Array.from(table.rows).slice(1)) {
+					let genreNode;
+					if (row.cells[0].childNodes.length === 6) {
+						genreNode = row.cells[0].childNodes[5];
+					} else if (row.cells[0].childNodes.length === 5) {
+						genreNode = row.cells[0].childNodes[4];
+					}
+
+					if (genreNode) {
+						let genreNames = genreNode.innerText.split(" | ");
+						let highlightedHTML = genreNames
+							.map((genre) => {
+								let lowerCaseGenre = genre.toLowerCase();
+								let index = highlighted.findIndex(
+									(highlight) => highlight.toLowerCase() === lowerCaseGenre
+								);
+								if (index !== -1) {
+									let color = colors[index % colors.length];
+									return `<span style="color: ${color};">${genre}</span>`;
+								} else {
+									return genre;
+								}
+							})
+							.join(" | ");
+						genreNode.innerHTML = highlightedHTML;
+					}
+				}
+			}
+		}
+		createFloatingCircle();
+	}
+	console.timeEnd("Highlight Genres");
+}
+
+function createFloatingCircle() {
+	let floatingCircle = document.createElement("div");
+	floatingCircle.id = "floatingCircle";
+	floatingCircle.style = `
+        width: 50px;
+        height: 50px;
+        background-color: #2e51a2;
+        border-radius: 50%;
+        position: fixed;
+        top: 100px;
+        right: 10px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+		cursor: pointer;
+    `;
+
+	let brushIcon = document.createElement("div");
+	brushIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="24" height="24">
+            <path fill="white" d="M339.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L568.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S517.7-4.4 499.1 9.6L262.4 187.2c-24 18-38.2 46.1-38.4 76.1L339.3 367.1zm-19.6 25.4l-116-104.4C143.9 290.3 96 339.6 96 400c0 3.9 .2 7.8 .6 11.6C98.4 429.1 86.4 448 68.8 448L64 448c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/>
+        </svg>
+    `;
+
+	floatingCircle.appendChild(brushIcon);
+	document.body.appendChild(floatingCircle);
+
+	// Create the popup element
+	let popup = document.createElement("div");
+	popup.id = "popup";
+	popup.style = `
+        position: fixed;
+        top: 150px;
+        right: 10px;
+        width: 200px;
+        padding: 10px;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 1001;
+    `;
+	// Add title to the popup
+	let title = document.createElement("div");
+	title.innerText = "Genre Highlighter";
+	title.style = `
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+		color: black;
+    `;
+	// Add input field to the popup
+	let inputField = document.createElement("input");
+	inputField.type = "text";
+	inputField.placeholder = "Enter gnres to highlight";
+	inputField.value = highlighted.join(", ");
+	inputField.style = `
+        width: 90%;
+        padding: 5px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    `;
+
+	// Add event listener to update highlightedGenres
+	inputField.addEventListener("input", () => {
+		highlighted = inputField.value.split(",").map((genre) => genre.trim());
+		chrome.storage.sync.get(["highlighted"], function (items) {
+			console.log(items);
+			if (typeof items["highlighted"] === "undefined") {
+				items["highlighted"] = [];
+			}
+			items["highlighted"] = [...highlighted];
+			chrome.storage.sync.set(
+				{ highlighted: items["highlighted"] },
+				function () {
+					console.log(items["highlighted"]);
+				}
+			);
+		});
+	});
+
+	popup.appendChild(title);
+	popup.appendChild(inputField);
+	document.body.appendChild(popup);
+
+	// Add click event listener to the floating circle
+	floatingCircle.addEventListener("click", () => {
+		popup.style.display = popup.style.display === "none" ? "block" : "none";
+	});
+}
+
 function clearPage() {
 	let len = content.childNodes.length;
 	for (i = 0; i < len - 1; i++) {
@@ -951,6 +1359,84 @@ function drawModBar() {
 	modBar.appendChild(modText);
 
 	content.insertBefore(modBar, content.childNodes[2]);
+}
+
+function tempAffinity() {
+	const rows = document.getElementsByTagName("table")[0].children[0].children;
+	let allAffinity = {};
+	allAffinity.total = 0;
+	allAffinity.x = [];
+	allAffinity.y = [];
+	allAffinity.diff = [];
+	allAffinity.totaldiff = 0;
+	allAffinity.totalx = 0;
+	allAffinity.totaly = 0;
+	allAffinity.meanx = 0;
+	allAffinity.meany = 0;
+	allAffinity.meandiff = 0;
+	allAffinity.affinity = 0;
+	for (let i = 1; i < rows.length - 2; ++i) {
+		let text = rows[i].innerText;
+		let newtext = text.split(/\s*(add|edit)\s*/);
+		let brandnewtext = text.split(
+			/^(.+ (add|edit))(\((\d+)?,? ?(\d+ \w+)?\))?(.+)/
+		);
+		let arr = brandnewtext[6].split("\t");
+
+		const x = Number.parseInt(arr[1]);
+		const y = Number.parseInt(arr[2]);
+		const diff = Number.parseInt(arr[3]);
+
+		try {
+			allAffinity.total += 1;
+			if (arr[3] === "\u00a0") continue;
+			allAffinity.x.push(x);
+			allAffinity.y.push(y);
+			allAffinity.diff.push(diff);
+			allAffinity.totalx += x;
+			allAffinity.totaly += y;
+			allAffinity.totaldiff += diff;
+		} catch (e) {
+			console.log(e);
+		}
+	}
+	let len = allAffinity.x.length;
+	allAffinity.meanx = allAffinity.totalx / len;
+	allAffinity.meany = allAffinity.totaly / len;
+	allAffinity.meandiff = allAffinity.totaldiff / len;
+	let meansum = 0;
+	let varx = 0;
+	let vary = 0;
+	for (let i = 0; i < len; ++i) {
+		meansum +=
+			(allAffinity.x[i] - allAffinity.meanx) *
+			(allAffinity.y[i] - allAffinity.meany);
+		varx +=
+			(allAffinity.x[i] - allAffinity.meanx) *
+			(allAffinity.x[i] - allAffinity.meanx);
+		vary +=
+			(allAffinity.y[i] - allAffinity.meany) *
+			(allAffinity.y[i] - allAffinity.meany);
+	}
+	allAffinity.affinity = meansum / Math.sqrt(varx * vary);
+	let para = document.createElement("p");
+	let text = document.createTextNode(
+		`All - Entries: ${allAffinity.total} (${
+			allAffinity.x.length
+		}) | Affinity: ${
+			isNaN(allAffinity.affinity)
+				? "Unknown"
+				: (allAffinity.affinity * 100).toFixed(1)
+		}% | Mean Diff: ${allAffinity.meandiff.toFixed(2)}`
+	);
+	para.style.fontSize = "12px";
+	para.style.fontWeight = "bold";
+	para.style.padding = "10px 0";
+	para.id = "tempAffinity";
+	if (allAffinity.affinity <= 0) para.style.color = "firebrick";
+	else if (allAffinity.affinity >= 0.499) para.style.color = "green";
+	para.appendChild(text);
+	document.getElementsByClassName("spaceit")[0].parentElement.prepend(para);
 }
 
 let sendMessage = function (message, callback) {
