@@ -10,9 +10,6 @@ let auth_type;
 let auth_token;
 let mediaType;
 
-// const no_auth_token = "";
-// const CLIENT_ID = encodeURIComponent("");
-
 const MAL_URI_ENDPOINT = "https://myanimelist.net/v1/oauth2/authorize";
 const RESPONSE_TYPE = encodeURIComponent("code");
 
@@ -24,7 +21,6 @@ for (var i = 0; i < 128; i++) {
 }
 const CODE_CHALLENGE = encodeURIComponent(text);
 const STATE = encodeURIComponent("RequestID42");
-// const REDIRECT_URI = encodeURIComponent("https://000.chromiumapp.org/");
 
 function create_auth_endpoint() {
 	let endpoint_url = `${MAL_URI_ENDPOINT}
@@ -88,16 +84,12 @@ async function getToken(code, sendResponse) {
 		});
 }
 
-// chrome.runtime.onInstalled.addListener((installed) => {
-//   console.log(installed);
-// });
-
 chrome.runtime.onInstalled.addListener((details) => {
 	if (details.reason === "install") {
 		// The extension has just been installed
 
-		const width = 350; // Adjust the width as needed
-		const height = 700; // Adjust the height as needed
+		const width = 350;
+		const height = 700;
 
 		chrome.windows.create({
 			type: "popup",

@@ -9,7 +9,6 @@ let mediaType;
 let settingsUnset = false;
 let hiddenCounter = 0;
 const bannedGenres = [];
-// let highlightedGenres = [];
 
 // Tags/affinities
 const tags = [
@@ -272,7 +271,6 @@ window.addEventListener("load", () => {
 						animelist = userData.animelist;
 						animenodelist = userData.animenodelist;
 						animeId = userData.animeId;
-						// clearPage();
 						drawTables(userData);
 					});
 				} else {
@@ -291,7 +289,6 @@ window.addEventListener("load", () => {
 								animelist = userData.animelist;
 								animenodelist = userData.animenodelist;
 								animeId = userData.animeId;
-								// clearPage();
 								drawTables(userData);
 							});
 						} else {
@@ -310,9 +307,6 @@ function notifyUserUnset() {
 		"display: flex; flex-direction: column; border: 1px solid #fff; border-radius: 4px; padding:0 0rem; align-items: flex-end;";
 
 	let modText = document.createElement("div");
-
-	// modText.style =
-	//   "cursor: pointer; padding:4px 4px; font-family: Avenir,lucida grande,tahoma,verdana,arial,sans-serif; text-decoration: none; color:white;border-radius: 2px; font-size:14px;font-weight: 700;text-align: center;margin-left: 8px; background:#2e51a2;";
 	modText.innerHTML = "Please set your add-on settings";
 	modBar.appendChild(modText);
 	content.insertBefore(modBar, content.childNodes[2]);
@@ -345,16 +339,6 @@ function pleaseAuth() {
 }
 
 function postDraw() {
-	// let flip = document.createElement("DIV");
-	// let aflip = document.createElement("A");
-	// aflip.text = "Flip users";
-	// aflip.href = `/shared.php?u1=${user[1]}&u2=${user[0]}${
-	//   mediaType == "manga" ? "&type=manga" : ""
-	// }`;
-	// flip.appendChild(aflip);
-
-	// flip.style.display = "inline-block";
-	// content.insertBefore(flip, content.childNodes[1]);
 	let modBar = content.childNodes[2];
 	modBar.remove();
 	if (malplus) {
@@ -921,11 +905,9 @@ function drawTables(userData) {
 									if (gens) {
 										for (let gen of gens) {
 											span.innerHTML = span.innerHTML + gen.name + " | ";
-											// element.innerHTML = element.innerHTML + gen.name + " | ";
 										}
 										span.innerHTML = span.innerHTML.slice(0, -2);
 										element.appendChild(span);
-										// element.innerHTML = element.innerHTML.slice(0, -2);
 									}
 								} catch (error) {
 									console.error(error);
@@ -1081,47 +1063,6 @@ function drawTables(userData) {
 			banGenres();
 		});
 	} else postDraw();
-
-	// this thing below is something i did last year and don't remember what it was supposed to be (2 yrs now, still no idea) (i think its 3 now?)
-	// let message = {
-	//   command: "getShared",
-	//   anime: userData.anime,
-	//   animeId: userData.animeId,
-	//   animelist: userData.animelist,
-	//   animenodelist: userData.animenodelist,
-	//   sharedtypes: settings.sharedtypes,
-	// };
-
-	// sendMessage(message, (sharedData) => {
-	//   sharedanime = sharedData.sharedanime;
-	//   drawShared(sharedData.sharedanime);
-	//   message = {
-	//     command: "getUnique",
-	//     anime: userData.anime,
-	//     animeId: userData.animeId,
-	//     animelist: userData.animelist,
-	//     animenodelist: userData.animenodelist,
-	//     sharedanime: sharedanime,
-	//   };
-
-	//   sendMessage(message, (uniqueData) => {
-	//     drawUnique(uniqueData.uniqueanime);
-	//     if (malcompletedinplanned) {
-	//       message = {
-	//         command: "getCompletedInPlanned",
-	//         anime: userData.anime,
-	//         animeId: userData.animeId,
-	//         animelist: userData.animelist,
-	//         animenodelist: userData.animenodelist,
-	//       };
-
-	//       sendMessage(message, (cipData) => {
-	//         drawCompletedInPlanned(cipData.cipanime); // TODO
-	//         console.timeEnd("All");
-	//       });
-	//     } else postDraw();
-	//   });
-	// });
 }
 
 function banGenres() {
@@ -1138,8 +1079,7 @@ function banGenres() {
 						.pop()
 						.split(")")[0];
 				} catch (error) {
-					// console.error("Error extracting mediaType:", error);
-					mediaType = null; // or any default value you prefer
+					mediaType = null;
 				}
 				if (banMediaTypes.includes(mediaType)) {
 					row.style.display = "none";
@@ -1153,8 +1093,7 @@ function banGenres() {
 						.pop()
 						.split(")")[0];
 				} catch (error) {
-					// console.error("Error extracting mediaType:", error);
-					mediaType = null; // or any default value you prefer
+					mediaType = null;
 				}
 				if (banMediaTypes.includes(mediaType)) {
 					row.style.display = "none";
@@ -1353,7 +1292,7 @@ function drawModBar() {
 
 	let modText = document.createElement("h3");
 	modText.style = "padding-left:2rem;";
-	modText.innerHTML = message[Math.round(Math.random() * 234)];
+	modText.innerHTML = message[Math.round(Math.random() * message.length)];
 
 	modBar.appendChild(spinner);
 	modBar.appendChild(modText);
@@ -1442,11 +1381,10 @@ function tempAffinity() {
 let sendMessage = function (message, callback) {
 	chrome.runtime.sendMessage(message, callback);
 };
+
 let message = [
 	"Generating witty dialog...",
-	"Swapping time and space...",
 	"Spinning violently around the y-axis...",
-	"Tokenizing real life...",
 	"Bending the spoon...",
 	"Filtering morale...",
 	"Don't think of purple hippos...",
@@ -1489,20 +1427,12 @@ let message = [
 	"Do you come here often?",
 	"Warning: Don't set yourself on fire.",
 	"We're making you a cookie.",
-	"Creating time-loop inversion field",
 	"Spinning the wheel of fortune...",
 	"Loading the enchanted bunny...",
 	"Computing chance of success",
 	"I'm sorry Dave, I can't do that.",
-	"Looking for exact change",
-	"All your web browser are belong to us",
-	"All I really need is a kilobit.",
 	"I feel like im supposed to be loading something. . .",
-	"What do you call 8 Hobbits? A Hobbyte.",
-	"Should have used a compiled language...",
 	"Is this Windows?",
-	"Adjusting flux capacitor...",
-	"Please wait until the sloth starts moving.",
 	"Don't break your screen yet!",
 	"I swear it's almost done.",
 	"Let's take a mindfulness minute...",
@@ -1512,20 +1442,14 @@ let message = [
 	"Putting the icing on the cake. The cake is not a lie...",
 	"Cleaning off the cobwebs...",
 	"Making sure all the i's have dots...",
-	"We need more dilithium crystals",
 	"Where did all the internets go",
-	"Connecting Neurotoxin Storage Tank...",
 	"Granting wishes...",
 	"Time flies when you’re having fun.",
 	"Get some coffee and come back in ten minutes..",
 	"Spinning the hamster…",
-	"99 bottles of beer on the wall..",
 	"Stay awhile and listen..",
-	"Be careful not to step in the git-gui",
-	"You edhall not pass! yet..",
 	"Load it and they will come",
 	"Convincing AI not to turn evil..",
-	"There is no spoon. Because we are not done loading it",
 	"Your left thumb points to the right and your right thumb points to the left.",
 	"How did you get here?",
 	"Wait, do you smell something burning?",
@@ -1534,149 +1458,112 @@ let message = [
 	"I love my job only when I'm on vacation...",
 	"i'm not lazy, I'm just relaxed!!",
 	"Never steal. The government hates competition....",
-	"Why are they called apartments if they are all stuck together?",
-	"Life is Short – Talk Fast!!!!",
-	"Optimism – is a lack of information.....",
-	"Save water and shower together",
 	"Whenever I find the key to success, someone changes the lock.",
-	"Sometimes I think war is God’s way of teaching us geography.",
 	"I’ve got problem for your solution…..",
-	"Where there’s a will, there’s a relative.",
-	"User: the word computer professionals use when they mean !!idiot!!",
-	"Adults are just kids with money.",
 	"I think I am, therefore, I am. I think.",
-	"A kiss is like a fight, with mouths.",
-	"You don’t pay taxes—they take taxes.",
-	"Coffee, Chocolate, Men. The richer the better!",
-	"I am free of all prejudices. I hate everyone equally.",
-	"git happens",
-	"May the forks be with you",
-	"A commit a day keeps the mobs away",
-	"This is not a joke, it's a commit.",
-	"Constructing additional pylons...",
-	"Roping some seaturtles...",
-	"Locating Jebediah Kerman...",
 	"We are not liable for any broken screens as a result of waiting.",
 	"Hello IT, have you tried turning it off and on again?",
-	"If you type Google into Google you can break the internet",
 	"Well, this is embarrassing.",
-	"What is the airspeed velocity of an unladen swallow?",
 	"Hello, IT... Have you tried forcing an unexpected reboot?",
-	"They just toss us away like yesterday's jam.",
 	"They're fairly regular, the beatings, yes. I'd say we're on a bi-weekly beating.",
 	"The Elders of the Internet would never stand for it.",
-	"Space is invisible mind dust, and stars are but wishes.",
 	"Didn't know paint dried so quickly.",
-	"Everything sounds the same",
 	"I'm going to walk the dog",
-	"I didn't choose the engineering life. The engineering life chose me.",
 	"Dividing by zero...",
 	"Spawn more Overlord!",
 	"If I’m not back in five minutes, just wait longer.",
-	"Some days, you just can’t get rid of a bug!",
-	"We’re going to need a bigger boat.",
-	"Chuck Norris never git push. The repo pulls before.",
-	"Web developers do it with <style>",
-	"I need to git pull --my-life-together",
-	"Java developers never RIP. They just get Garbage Collected.",
 	"Cracking military-grade encryption...",
-	"Simulating traveling salesman...",
-	"Proving P=NP...",
-	"Entangling superstrings...",
-	"Twiddling thumbs...",
-	"Searching for plot device...",
-	"Trying to sort in O(n)...",
 	"Laughing at your pictures-i mean, loading...",
 	"Sending data to NS-i mean, our servers.",
 	"Looking for sense of humour, please hold on.",
 	"Please wait while the intern refills his coffee.",
 	"A different error message? Finally, some progress!",
-	"Hold on while we wrap up our git together...sorry",
 	"Please hold on as we reheat our coffee",
 	"Kindly hold on as we convert this bug to a feature...",
-	"Kindly hold on as our intern quits vim...",
 	"Winter is coming...",
-	"Installing dependencies",
-	"Switching to the latest JS framework...",
 	"Distracted by cat gifs",
 	"Finding someone to hold my beer",
-	"BRB, working on my side project",
 	"@todo Insert witty loading message",
 	"Let's hope it's worth the wait",
 	"Aw, snap! Not..",
 	"Ordering 1s and 0s...",
-	"Updating dependencies...",
 	"Whatever you do, don't look behind you...",
 	"Please wait... Consulting the manual...",
-	"It is dark. You're likely to be eaten by a grue.",
 	"Loading funny message...",
 	"It's 10:00pm. Do you know where your children are?",
-	"Waiting Daenerys say all her titles...",
 	"Feel free to spin in your chair",
 	"What the what?",
-	"format C: ...",
-	"Forget you saw that password I just typed into the IM ...",
 	"What's under there?",
-	"Your computer has a virus, its name is Windows!",
 	"Go ahead, hold your breath and do an ironman plank till loading complete",
-	"Bored of slow loading spinner, buy more RAM!",
 	"Help, I'm trapped in a loader!",
 	"What is the difference btwn a hippo and a zippo? One is really heavy, the other is a little lighter",
-	"Please wait, while we purge the Decepticons for you. Yes, You can thanks us later!",
-	"Chuck Norris once urinated in a semi truck's gas tank as a joke....that truck is now known as Optimus Prime.",
-	"Chuck Norris doesn’t wear a watch. HE decides what time it is.",
 	"Mining some bitcoins...",
 	"Downloading more RAM..",
 	"Updating to Windows Vista...",
 	"Deleting System32 folder",
-	"Hiding all ;'s in your code",
 	"Alt-F4 speeds things up.",
-	"Initializing the initializer...",
 	"When was the last time you dusted around here?",
-	"Optimizing the optimizer...",
-	"Last call for the data bus! All aboard!",
-	"Running swag sticker detection...",
 	"Never let a computer know you're in a hurry.",
-	"A computer will do what you tell it to do, but that may be much different from what you had in mind.",
-	"Some things man was never meant to know. For everything else, there's Google.",
-	"Unix is user-friendly. It's just very selective about who its friends are.",
 	"Shovelling coal into the server",
 	"Pushing pixels...",
 	"How about this weather, eh?",
 	"Building a wall...",
 	"Everything in this universe is either a potato or not a potato",
-	"The severity of your issue is always lower than you expected.",
-	"Updating Updater...",
-	"Downloading Downloader...",
-	"Debugging Debugger...",
 	"Reading Terms and Conditions for you.",
 	"Digested cookies being baked again.",
-	"Live long and prosper.",
-	"There is no cow level, but there's a goat one!",
-	"Deleting all your hidden porn...",
-	"Running with scissors...",
+	"Deleting all your hidden [homework]...",
 	"Definitely not a virus...",
 	"You may call me Steve.",
 	"You seem like a nice person...",
-	"Coffee at my place, tommorow at 10A.M. - don't be late!",
-	"Work, work...",
 	"Patience! This is difficult, you know...",
 	"Discovering new ways of making you wait...",
 	"Your time is very important to us. Please wait while we ignore you...",
-	"Time flies like an arrow; fruit flies like a banana",
-	"Two men walked into a bar; the third ducked...",
 	"Sooooo... Have you seen my vacation photos yet?",
 	"Sorry we are busy catching em' all, we're done soon",
 	"TODO: Insert elevator music",
 	"Still faster than Windows update",
-	"Composer hack: Waiting for reqs to be fetched is less frustrating if you add -vvv to your command.",
 	"Please wait while the minions do their work",
-	"Grabbing extra minions",
-	"Doing the heavy lifting",
-	"We're working very Hard .... Really",
-	"Waking up the minions",
 	"You are number 2843684714 in the queue",
 	"Please wait while we serve other customers...",
 	"Our premium plan is faster",
 	"Feeding unicorns...",
+	"Assembling a Gundam under your tree...",
+	"Wrapping your anime merch with care... and duct tape.",
+	"Sorting Santa’s naughty list with the Death Note...",
+	"Reindeers cosplaying as Titans... loading might take a while.",
+	"The reindeers are debating over the best waifu... please hold.",
+	"Santa’s workshop just ran out of magic... recharging with ramen.",
+	"Stacking your presents higher than an anime protagonist’s hair...",
+	"Stitching together your anime-themed ugly Christmas sweater...",
+	"Double-checking if All Might is on the nice list... please wait.",
+	"Loading... the elves are watching *One Piece* and lost count of episodes.",
+	"Santa’s workshop is binge-watching your favorite anime... please wait.",
+	"Delivering anime Blu-rays via reindeer-powered drones...",
+	"Caught in an anime filler arc... hold on tight!",
+	"Santa’s bag is overfilled with manga volumes... compressing...",
+	"Wrapping your anime-inspired Christmas cookies... almost done!",
+	"Checking if Santa can fit a life-sized Gundam under the tree...",
+	"Crafting a Naruto headband for stocking...",
+	"Finding the perfect anime soundtrack for user matching...",
+	"Matching users faster than Santa checks his list twice...",
+	"Analyzing anime compatibility... and your holiday cheer levels!",
+	"Sorting through Santa’s list of anime fans... almost there!",
+	"Checking if Santa approves of their taste in anime genres...",
+	"Analyzing anime lists... no coal this time, promise!",
+	"Cross-referencing naughty anime tastes...",
+	"Analyzing user lists for the most wholesome holiday recommendations...",
+	"Scanning MAL for gift ideas...",
+	"Debating waifus in the workshop...",
+	"Choosing manga over cookies...",
+	"Checking who deserves coal...",
+	"Checking if they skipped the *Naruto* fillers...",
+	"Finding someone who shares the love for *My Neighbor Totoro*...",
+	"Deciding if this match deserves *One Piece* or *Bleach*...",
+	"Recommending manga that pairs well with hot cocoa...",
+	"Finding anime suggestions as wholesome as *Clannad*...",
+	"Compiling the top 10 waifus for this match...",
+	"ESpiking the punch with glühwein... almost ready!",
+	"Too much glühwein... rechecking the matches.",
+	"Glühwein spilled on users' stats... hold on!",
+	"Sipping glühwein while loading your matches...",
 ];
