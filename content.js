@@ -8,7 +8,6 @@ let animeId = [[], []];
 let mediaType;
 let settingsUnset = false;
 let hiddenCounter = 0;
-const bannedGenres = [];
 
 // Tags/affinities
 const tags = [
@@ -118,6 +117,8 @@ let droptag;
 let sortcip;
 let highlighter;
 let highlighted;
+let bonker;
+let bannedGenres;
 let banMediaTypes;
 let affinitysetting;
 let cutoffsetting;
@@ -175,6 +176,8 @@ window.addEventListener("load", () => {
 			"sortcip",
 			"highlighter",
 			"highlighted",
+			"bonker",
+			"bannedGenres",
 			"music",
 			"pv",
 			"cm",
@@ -191,6 +194,8 @@ window.addEventListener("load", () => {
 			sortcip = settingsdata["sortcip"];
 			highlighter = settingsdata["highlighter"];
 			highlighted = settingsdata["highlighted"];
+			bonker = settingsdata["bonker"];
+			bannedGenres = settingsdata["bannedGenres"];
 			banMediaTypes = [
 				settingsdata["music"] ? "music" : "",
 				settingsdata["pv"] ? "pv" : "",
@@ -222,6 +227,10 @@ window.addEventListener("load", () => {
 			if (highlighter === undefined) highlighter = false;
 
 			if (highlighted === undefined) highlighted = [];
+
+			if (bonker === undefined) bonker = false;
+
+			if (bannedGenres === undefined) bannedGenres = [];
 
 			if (
 				maltags == false &&
@@ -544,10 +553,10 @@ function drawCompletedInPlanned(animeData) {
 		let tempGenres = [];
 		for (let genre of animelist[1][animeId[1].indexOf(anime)].node.genres)
 			tempGenres.push(genre.name);
-		if (tempGenres.some((genre) => bannedGenres.includes(genre))) {
-			hiddenCounter += 1;
-			continue;
-		}
+		// if (tempGenres.some((genre) => bannedGenres.includes(genre))) {
+		// 	hiddenCounter += 1;
+		// 	continue;
+		// }
 		let theanimelist;
 		let theanimeId;
 		if (completedorder == false) {
@@ -1106,7 +1115,7 @@ function banGenres() {
 
 	console.time("Ban Genres");
 	// Ban some genres - integrate this into one above if banned genres become a thing
-	if (bannedGenres && bannedGenres.length > 0) {
+	if (bonker && bannedGenres.length > 0) {
 		const tables = content.querySelectorAll("table");
 		for (let table of tables) {
 			for (let row of Array.from(table.rows).slice(1)) {
@@ -1126,6 +1135,7 @@ function banGenres() {
 			}
 		}
 	}
+	if (bonker) createBonkerFloatingCircle();
 	console.timeEnd("Ban Genres");
 	console.log("Hidden: " + hiddenCounter);
 
@@ -1175,12 +1185,12 @@ function highlightGenres() {
 				}
 			}
 		}
-		createFloatingCircle();
+		createHighlighterFloatingCircle();
 	}
 	console.timeEnd("Highlight Genres");
 }
 
-function createFloatingCircle() {
+function createHighlighterFloatingCircle() {
 	let floatingCircle = document.createElement("div");
 	floatingCircle.id = "floatingCircle";
 	floatingCircle.style = `
@@ -1259,6 +1269,100 @@ function createFloatingCircle() {
 				{ highlighted: items["highlighted"] },
 				function () {
 					console.log(items["highlighted"]);
+				}
+			);
+		});
+	});
+
+	popup.appendChild(title);
+	popup.appendChild(inputField);
+	document.body.appendChild(popup);
+
+	// Add click event listener to the floating circle
+	floatingCircle.addEventListener("click", () => {
+		popup.style.display = popup.style.display === "none" ? "block" : "none";
+	});
+}
+
+function createBonkerFloatingCircle() {
+	let floatingCircle = document.createElement("div");
+	floatingCircle.id = "floatingBonkerCircle";
+	floatingCircle.style = `
+        width: 50px;
+        height: 50px;
+        background-color: #2e51a2;
+        border-radius: 50%;
+        position: fixed;
+        top: 160px;
+        right: 10px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+		cursor: pointer;
+    `;
+
+	let bonkIcon = document.createElement("div");
+	bonkIcon.innerHTML = `
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="24" height="24">
+		<path fill="white" d="M318.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-120 120c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l4-4L325.4 293.4l-4 4c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l120-120c12.5-12.5 12.5-32.8 0-45.3l-16-16c-12.5-12.5-32.8-12.5-45.3 0l-4 4L330.6 74.6l4-4c12.5-12.5 12.5-32.8 0-45.3l-16-16zm-152 288c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l48 48c12.5 12.5 32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-1.4-1.4L272 285.3 226.7 240 168 298.7l-1.4-1.4z"/>
+	</svg>
+    `;
+
+	floatingCircle.appendChild(bonkIcon);
+	document.body.appendChild(floatingCircle);
+
+	// Create the popup element
+	let popup = document.createElement("div");
+	popup.id = "bonk-popup";
+	popup.style = `
+        position: fixed;
+        top: 210px;
+        right: 10px;
+        width: 200px;
+        padding: 10px;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 1001;
+    `;
+	// Add title to the popup
+	let title = document.createElement("div");
+	title.innerText = "Genre Bonker";
+	title.style = `
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+		color: black;
+    `;
+	// Add input field to the popup
+	let inputField = document.createElement("input");
+	inputField.type = "text";
+	inputField.placeholder = "Enter gnres to bonk";
+	inputField.value = bannedGenres.join(", ");
+	inputField.style = `
+        width: 90%;
+        padding: 5px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    `;
+
+	// Add event listener to update highlightedGenres
+	inputField.addEventListener("input", () => {
+		bannedGenres = inputField.value.split(",").map((genre) => genre.trim());
+		chrome.storage.sync.get(["bannedGenres"], function (items) {
+			console.log(items);
+			if (typeof items["bannedGenres"] === "undefined") {
+				items["bannedGenres"] = [];
+			}
+			items["bannedGenres"] = [...bannedGenres];
+			chrome.storage.sync.set(
+				{ bannedGenres: items["bannedGenres"] },
+				function () {
+					console.log(items["bannedGenres"]);
 				}
 			);
 		});

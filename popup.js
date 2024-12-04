@@ -51,6 +51,13 @@ function setup() {
 		}
 		document.getElementById("highlighter").checked = items["highlighter"];
 	});
+	chrome.storage.sync.get(["bonker"], function (items) {
+		if (typeof items["bonker"] === "undefined") {
+			items["bonker"] = false;
+			chrome.storage.sync.set({ bonker: false }, () => {});
+		}
+		document.getElementById("bonker").checked = items["bonker"];
+	});
 	chrome.storage.sync.get(["music"], function (items) {
 		if (typeof items["music"] === "undefined") {
 			items["music"] = false;
@@ -166,6 +173,16 @@ checkbox8.addEventListener("change", (event) => {
 		chrome.storage.sync.set({ highlighter: true }, function () {});
 	} else {
 		chrome.storage.sync.set({ highlighter: false }, function () {});
+	}
+});
+
+const checkbox13 = document.getElementById("bonker");
+
+checkbox13.addEventListener("change", (event) => {
+	if (event.target.checked) {
+		chrome.storage.sync.set({ bonker: true }, function () {});
+	} else {
+		chrome.storage.sync.set({ bonker: false }, function () {});
 	}
 });
 
