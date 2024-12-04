@@ -1121,13 +1121,25 @@ function banGenres() {
 			for (let row of Array.from(table.rows).slice(1)) {
 				if (row.cells[0].childNodes.length === 6) {
 					let genreNames = row.cells[0].childNodes[5].innerText.split(" | ");
-					if (genreNames.some((genre) => bannedGenres.includes(genre))) {
+					if (
+						genreNames.some((genre) =>
+							bannedGenres
+								.map((g) => g.toLowerCase())
+								.includes(genre.toLowerCase())
+						)
+					) {
 						row.style.display = "none";
 						hiddenCounter += 1;
 					}
 				} else if (row.cells[0].childNodes.length === 5) {
 					let genreNames = row.cells[0].childNodes[4].innerText.split(" | ");
-					if (genreNames.some((genre) => bannedGenres.includes(genre))) {
+					if (
+						genreNames.some((genre) =>
+							bannedGenres
+								.map((g) => g.toLowerCase())
+								.includes(genre.toLowerCase())
+						)
+					) {
 						row.style.display = "none";
 						hiddenCounter += 1;
 					}
