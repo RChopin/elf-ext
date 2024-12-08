@@ -390,7 +390,7 @@ async function getUserData(userNo, paging) {
 		.then((response) => response.json())
 		.then((data) => {
 			animelist[userNo].push(...data.data);
-			if (data.data.length == 1000) {
+			if (data.data.length == 1000 && data.paging.next) {
 				return getUserData(userNo, data.paging.next);
 			}
 		})

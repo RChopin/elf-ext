@@ -58,27 +58,34 @@ function setup() {
 		}
 		document.getElementById("bonker").checked = items["bonker"];
 	});
-	chrome.storage.sync.get(["music"], function (items) {
-		if (typeof items["music"] === "undefined") {
-			items["music"] = false;
-			chrome.storage.sync.set({ music: false }, () => {});
+	chrome.storage.sync.get(["banMediaTypes"], function (items) {
+		if (typeof items["banMediaTypes"] === "undefined") {
+			items["banMediaTypes"] = [];
 		}
-		document.getElementById("music").checked = items["music"];
+		document.getElementById("inputBanMedia").value = items["banMediaTypes"];
+		console.log(items["banMediaTypes"]);
 	});
-	chrome.storage.sync.get(["pv"], function (items) {
-		if (typeof items["pv"] === "undefined") {
-			items["pv"] = false;
-			chrome.storage.sync.set({ pv: false }, () => {});
-		}
-		document.getElementById("pv").checked = items["pv"];
-	});
-	chrome.storage.sync.get(["cm"], function (items) {
-		if (typeof items["cm"] === "undefined") {
-			items["cm"] = false;
-			chrome.storage.sync.set({ cm: false }, () => {});
-		}
-		document.getElementById("cm").checked = items["cm"];
-	});
+	// chrome.storage.sync.get(["music"], function (items) {
+	// 	if (typeof items["music"] === "undefined") {
+	// 		items["music"] = false;
+	// 		chrome.storage.sync.set({ music: false }, () => {});
+	// 	}
+	// 	document.getElementById("music").checked = items["music"];
+	// });
+	// chrome.storage.sync.get(["pv"], function (items) {
+	// 	if (typeof items["pv"] === "undefined") {
+	// 		items["pv"] = false;
+	// 		chrome.storage.sync.set({ pv: false }, () => {});
+	// 	}
+	// 	document.getElementById("pv").checked = items["pv"];
+	// });
+	// chrome.storage.sync.get(["cm"], function (items) {
+	// 	if (typeof items["cm"] === "undefined") {
+	// 		items["cm"] = false;
+	// 		chrome.storage.sync.set({ cm: false }, () => {});
+	// 	}
+	// 	document.getElementById("cm").checked = items["cm"];
+	// });
 	chrome.storage.sync.get(["affinity"], function (items) {
 		document.getElementById("affinity").checked = items["affinity"];
 	});
@@ -186,35 +193,45 @@ checkbox13.addEventListener("change", (event) => {
 	}
 });
 
-const checkbox9 = document.getElementById("music");
+const inputBanMedia = document.getElementById("banMedia");
+let inputBanMediaButton = inputBanMedia.childNodes[3];
 
-checkbox9.addEventListener("change", (event) => {
-	if (event.target.checked) {
-		chrome.storage.sync.set({ music: true }, function () {});
-	} else {
-		chrome.storage.sync.set({ music: false }, function () {});
-	}
+inputBanMediaButton.addEventListener("click", (event) => {
+	event.preventDefault();
+	let inputValue = inputBanMedia.childNodes[1].value;
+	chrome.storage.sync.set({ banMediaTypes: inputValue }, function () {});
+	console.log(inputValue);
 });
 
-const checkbox10 = document.getElementById("pv");
+// const checkbox9 = document.getElementById("music");
 
-checkbox10.addEventListener("change", (event) => {
-	if (event.target.checked) {
-		chrome.storage.sync.set({ pv: true }, function () {});
-	} else {
-		chrome.storage.sync.set({ pv: false }, function () {});
-	}
-});
+// checkbox9.addEventListener("change", (event) => {
+// 	if (event.target.checked) {
+// 		chrome.storage.sync.set({ music: true }, function () {});
+// 	} else {
+// 		chrome.storage.sync.set({ music: false }, function () {});
+// 	}
+// });
 
-const checkbox11 = document.getElementById("cm");
+// const checkbox10 = document.getElementById("pv");
 
-checkbox11.addEventListener("change", (event) => {
-	if (event.target.checked) {
-		chrome.storage.sync.set({ cm: true }, function () {});
-	} else {
-		chrome.storage.sync.set({ cm: false }, function () {});
-	}
-});
+// checkbox10.addEventListener("change", (event) => {
+// 	if (event.target.checked) {
+// 		chrome.storage.sync.set({ pv: true }, function () {});
+// 	} else {
+// 		chrome.storage.sync.set({ pv: false }, function () {});
+// 	}
+// });
+
+// const checkbox11 = document.getElementById("cm");
+
+// checkbox11.addEventListener("change", (event) => {
+// 	if (event.target.checked) {
+// 		chrome.storage.sync.set({ cm: true }, function () {});
+// 	} else {
+// 		chrome.storage.sync.set({ cm: false }, function () {});
+// 	}
+// });
 
 const checkbox12 = document.getElementById("affinity");
 
